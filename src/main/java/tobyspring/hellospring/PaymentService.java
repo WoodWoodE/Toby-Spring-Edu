@@ -1,21 +1,27 @@
 package tobyspring.hellospring;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class PaymentService {
+abstract public class PaymentService {
+    public Payment prepare(Long orderId, String currency, BigDecimal foreignCurrencyAmount) throws IOException {
 
-    public Payment prepare(Long orderId, String currency, BigDecimal foreignCurrencyAmount) {
-        //
-        //
-        //
+        BigDecimal exRate = getExRate(currency);
+        BigDecimal convertedAmount = foreignCurrencyAmount.multiply(exRate);
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(30);
 
-        return new Payment(orderId,currency, foreignCurrencyAmount,BigDecimal.ZERO, BigDecimal.ZERO, LocalDateTime.now());
+        return new Payment(
+                orderId, 
+                currency, 
+                foreignCurrencyAmount, 
+                exRate, 
+                convertedAmount, 
+                validUntil
+        );
     }
 
-    public static void main(String[] args) {
-        PaymentService paymentService = new PaymentService();
-        Payment prepare = paymentService.prepare(1L, "USD", BigDecimal.valueOf(50.7));
-        System.out.println(prepare);
-    }
+    abstract BigDecimal getExRate(String currency) throws IOException ;
+
+
 }
